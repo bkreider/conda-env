@@ -11,6 +11,7 @@ import sys
 import argparse
 import os.path
 
+import conda.config
 import conda_api
 
 from conda_env import __version__
@@ -47,24 +48,42 @@ testing. Implies --no-test and --no-binstar-upload""",
     args = p.parse_args()
     args_func(args, p)
 
+def _list_envs():
+    """
+    List envs by prefix_root
+    """
+    out = {}
+    envs = conda_api.get_envs()
+
+    for env in envs:
+        dirname = os.path.dirname(env)
+        base = os.path.basename(env)
+
+        # skip system envs
+        if base[0] != "_":
+            t = out.get(dirname, [])
+            t.append(base)
+            out[dirname] = t
+
+    return out
+
+
 def execute(args, parser):
 
     if args.list:
-        envs = conda_api.get_envs()
+        all_envs = _list_envs()
 
-        for env in envs:
-            base = os.path.basename(env)
-
-            # skip system envs
-            if base[0] != "_":
-                print(base)
+        for prefix, envs in all_envs.iteritems():
+            print(prefix)
+            for env in envs:
+                print("\t%s" % (env,))
         return
 
     if args.delete:
-        raise NotImplementedError
+        raise RuntimeError("Delete is not implemented")
 
-    print("No command found")
-    return
+    parser.print_help()
+    raise RuntimeError("too few arguments")    
 
 def args_func(args, p):
     try:

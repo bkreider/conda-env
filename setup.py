@@ -8,6 +8,8 @@
 import sys
 import os
 
+import versioneer
+
 try:
     from setuptools import setup
     using_setuptools = True
@@ -46,6 +48,6 @@ setup(
     packages = ['conda_env'],
     scripts = [
         'bin/conda-env',
-    ]
+    ],
     install_requires = ['conda-api'],
 )
